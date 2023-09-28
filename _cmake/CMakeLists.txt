@@ -1,11 +1,14 @@
 cmake_minimum_required(VERSION 3.0)
 project(test)
 
-set(CUSTOM_DIR ${CMAKE_SOURCE_DIR}/lib/install/lib/cmake/wxWidgets)
+add_subdirectory(external)
 
-
-message(${CUSTOM_DIR})
-find_package(wxWidgets REQUIRED COMPONENTS core base PATHS ${CUSTOM_DIR})
-
-add_executable(test main.cpp)
-target_link_libraries(test ${wxWidgets_LIBRARIES})
+include(ExternalProject)
+ExternalProject_Add(
+    test_core
+    DEPENDS wxWidgets
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src
+    BUILD_ALWAYS 1
+    CMAKE_ARGS -DwxWidgets_ROOT_DIR=${wxWidgets_ROOT_DIR}
+    INSTALL_COMMAND ""
+)
