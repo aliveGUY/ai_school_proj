@@ -1,14 +1,11 @@
 cmake_minimum_required(VERSION 3.0)
 project(test)
 
-add_subdirectory(external)
+message("CMAKE_CROSSCOMPILING ${CMAKE_CROSSCOMPILING}")
 
-include(ExternalProject)
-ExternalProject_Add(
-    test_core
-    DEPENDS wxWidgets
-    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src
-    BUILD_ALWAYS 1
-    CMAKE_ARGS -DwxWidgets_ROOT_DIR=${wxWidgets_ROOT_DIR}
-    INSTALL_COMMAND ""
-)
+find_package(wxWidgets PATHS ${CMAKE_CURRENT_SOURCE_DIR}/external/wxWidgets/${CMAKE_SYSTEM_NAME}_build/install/lib/cmake/wxWidgets)
+find_package(OpenGL REQUIRED)
+
+add_executable(test WIN32 main.cpp)
+
+target_link_libraries(test PRIVATE ${wxWidgets_LIBRARIES})

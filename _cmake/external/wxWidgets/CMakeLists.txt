@@ -1,34 +1,41 @@
-find_package(wxWidgets QUIET PATHS ${CMAKE_CURRENT_BINARY_DIR}/install/lib/cmake/wxWidgets)
+cmake_minimum_required(VERSION 3.0)
+project(wxWidgets)
+
+message("CMAKE_CROSSCOMPILING: ${CMAKE_CROSSCOMPILING}")
+message("CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")
+find_package(wxWidgets PATHS ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_SYSTEM_NAME}_build/install/lib/cmake/wxWidgets)
 
 if(wxWidgets_FOUND)
-    message(STATUS "WxWisgets IS FOUND!!!")
-    add_library(wxWidgets INTERFACE)
+    message("FOUND PACKAGE: wxWidgets")
 else()
-    message(STATUS "CANT FIND WxWisgets!!!")
-    message(STATUS "Will install WxWidgets to ${CMAKE_CURRENT_BINARY_DIR}")
-    include(ExternalProject)
-    ExternalProject_Add(
-        wxWidgets
-        PREFIX ${CMAKE_CURRENT_BINARY_DIR}
-        STAMP_DIR  ${CMAKE_CURRENT_BINARY_DIR}/log
-        TMP_DIR ${CMAKE_CURRENT_BINARY_DIR}/log/tmp
-        DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}/download
-        SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/download
-        BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/build
-        INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/install
-        
-        URL https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.2.1/wxWidgets-3.2.2.1.tar.bz2
-        
-        CMAKE_ARGS
-        -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/install
-    )
-
-    set(wxWidgets_ROOT_DIR ${CMAKE_CURRENT_BINARY_DIR}/install)
-    file(TO_NATIVE_PATH "${wxWidgets_ROOT_DIR}" wxWidgets_ROOT_DIR)
-    set(wxWidgets_ROOT_DIR ${wxWidgets_ROOT_DIR} CACHE INTERNAL "wxWidgets installation dir")
-
-    set(ENV_WX_CONFIG ${CMAKE_CURRENT_BINARY_DIR}/build/wx-config)
-    file(TO_NATIVE_PATH "${ENV_WX_CONFIG}" ENV_WX_CONFIG)
-    set(ENV_WX_CONFIG ${ENV_WX_CONFIG} CACHE INTERNAL "wx-config dir")
+    message("CANT FIND A PACKAGE: wxWidgets")
+    set(CONFIGURATIONS Debug Release)
     
+    set(INSTALL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_SYSTEM_NAME}_build/install)
+    set(EXTERNAL_PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_SYSTEM_NAME}_build/source)
+    set(EXTERNAL_PROJECT_BINARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_SYSTEM_NAME}_build/build)
+
+    include(ExternalProject)
+    function(build_external_project CONFIG)
+        ExternalProject_Add(
+            ${PROJECT_NAME}_${CONFIG}
+            PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_SYSTEM_NAME}_build/external_project
+            DOWNLOAD_DIR ${EXTERNAL_PROJECT_BINARY_DIR}
+            SOURCE_DIR ${EXTERNAL_PROJECT_SOURCE_DIR}
+            BINARY_DIR ${EXTERNAL_PROJECT_BINARY_DIR}
+            INSTALL_DIR ${INSTALL_DIR}
+            GIT_REPOSITORY https://github.com/wxWidgets/wxWidgets.git
+            GIT_TAG master
+            CMAKE_ARGS
+                -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}
+                -DCMAKE_BUILD_TYPE=${CONFIG}
+                -DwxBUILD_SHARED=OFF
+                -DwxBUILD_SAMPLES=ALL
+                -DwxBUILD_DEMOS=ON
+                -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+            )
+    endfunction()
+    foreach(CONFIG ${CONFIGURATIONS})
+        build_external_project(${CONFIG})
+    endforeach()
 endif()
