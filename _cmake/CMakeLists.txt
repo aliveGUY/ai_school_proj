@@ -3,11 +3,20 @@ project(test)
 
 message("CMAKE_CROSSCOMPILING ${CMAKE_CROSSCOMPILING}")
 
+
 add_executable(client WIN32 
 src/client/client.cpp
-src/client/presentation/MainFrame.cpp
-src/client/presentation/MainFrame.h
 )
+set(SOURCE_DIR "${CMAKE_SOURCE_DIR}/src/client/presentation")
+
+file(GLOB_RECURSE SOURCE_FILES "${SOURCE_DIR}/*.cpp")
+
+target_sources(client PRIVATE ${SOURCE_FILES})
+
+
+
+
+
 
 add_executable(server WIN32 
 src/server/server.cpp
