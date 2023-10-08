@@ -8,8 +8,8 @@ set(CMAKE_SYSTEM_PROCESSOR i686)
 set(CMAKE_SYSROOT /usr/bin)
 
 # Add additional compiler and linker flags as needed
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -mwindows -static-libgcc -static-libstdc++ -DYOUR_MACRO")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -mwindows -static-libgcc -static-libstdc++ -DYOUR_MACRO")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -mwindows -static-libgcc -static-libstdc++")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -mwindows -static-libgcc -static-libstdc++  -std=c++17")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
 
 # Specify the path to the Windows libraries (optional)

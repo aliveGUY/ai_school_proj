@@ -1,36 +1,73 @@
 #include <iostream>
-#include <asio.hpp>
+#include "../bridge/laba_net.h"
 
-using namespace asio;
-using ip::tcp;
-using std::string;
-using std::cout;
-using std::endl;
+enum class CustomMsgTypes : uint32_t
+{
+    ServerAccept,
+    ServerDeny,
+    ServerPing,
+    MessageAll,
+    ServerMessage,
+};
 
-string read_(tcp::socket & socket) {
-       asio::streambuf buf;
-       asio::read_until( socket, buf, "\n" );
-       string data = asio::buffer_cast<const char*>(buf.data());
-       return data;
-}
-void send_(tcp::socket & socket, const string& message) {
-       const string msg = message + "\n";
-       asio::write( socket, asio::buffer(message) );
-}
+class CustomServer : public laba::net::server_interface<CustomMsgTypes>
+{
+public:
+    CustomServer(uint16_t nPort) : laba::net::server_interface<CustomMsgTypes>(nPort)
+    {
+    }
 
-int main() {
-      asio::io_service io_service;
-//listen for new connection
-      tcp::acceptor acceptor_(io_service, tcp::endpoint(tcp::v4(), 1234 ));
-//socket creation 
-      tcp::socket socket_(io_service);
-//waiting for connection
-      acceptor_.accept(socket_);
-//read operation
-      string message = read_(socket_);
-      cout << message << endl;
-//write operation
-      send_(socket_, "Hello From Server!");
-      cout << "Servent sent Hello message to Client!" << endl;
-   return 0;
+protected:
+    virtual bool OnClientConnect(std::shared_ptr<laba::net::connection<CustomMsgTypes>> client)
+    {
+        laba::net::message<CustomMsgTypes> msg;
+        msg.header.id = CustomMsgTypes::ServerAccept;
+        client->Send(msg);
+        return true;
+    }
+
+    virtual void OnClientDisconnect(std::shared_ptr<laba::net::connection<CustomMsgTypes>> client)
+    {
+        std::cout << "Removing client [" << client->GetID() << "]\n";
+    }
+
+    virtual void OnMessage(std::shared_ptr<laba::net::connection<CustomMsgTypes>> client, laba::net::message<CustomMsgTypes> &msg)
+    {
+        switch (msg.header.id)
+        {
+        case CustomMsgTypes::ServerPing:
+        {
+            std::cout << "[" << client->GetID() << "]: Server Ping\n";
+
+            // Simply bounce message back to client
+            client->Send(msg);
+        }
+        break;
+
+        case CustomMsgTypes::MessageAll:
+        {
+            std::cout << "[" << client->GetID() << "]: Message All\n";
+
+            // Construct a new message and send it to all clients
+            laba::net::message<CustomMsgTypes> msg;
+            msg.header.id = CustomMsgTypes::ServerMessage;
+            msg << client->GetID();
+            MessageAllClients(msg, client);
+        }
+        break;
+        }
+    }
+};
+
+int main()
+{
+    CustomServer server(60000);
+    server.Start();
+
+    while (1)
+    {
+        server.Update(-1, true);
+    }
+
+    return 0;
 }
