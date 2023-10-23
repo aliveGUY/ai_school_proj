@@ -2,3 +2,5 @@ build/
 *_build/
 cache/
 source/
+.gradle/
+lint*

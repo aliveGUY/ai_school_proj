@@ -1,0 +1,30 @@
+apply plugin: 'com.android.application'
+
+android {
+    namespace 'com.example.myandroidapp'
+    compileSdkVersion 33
+    defaultConfig {
+        applicationId "com.example.myandroidapp"
+        minSdkVersion 21
+        targetSdkVersion 33
+        versionCode 1
+        versionName "1.0"
+        multiDexEnabled true
+    }
+
+    lint {
+          baseline = file("lint-baseline.xml")
+      }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.clarifai:clarifai-grpc:9.9.1'
+    implementation 'org.conscrypt:conscrypt-android:2.5.2'
+    implementation 'io.grpc:grpc-okhttp:1.42.1'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+}
