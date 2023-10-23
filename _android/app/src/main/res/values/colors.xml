@@ -1,0 +1,4 @@
+<resources>
+    <color name="buttonPressed">#FFD700</color>
+    <color name="buttonNormal">#FFA500</color>
+</resources>
