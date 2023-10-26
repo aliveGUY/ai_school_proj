@@ -1,4 +1,4 @@
 <resources>
-    <color name="buttonPressed">#FFD700</color>
-    <color name="buttonNormal">#FFA500</color>
+    <color name="buttonPressed">#CCAB05</color>
+    <color name="buttonNormal">#D08805</color>
 </resources>
