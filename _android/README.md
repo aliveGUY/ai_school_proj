@@ -4,6 +4,7 @@
 
 ## Встановлення
 
+Більш детально про налаштування пректу розписано [тут](https://medium.com/@ilyadubrivvin/tutorial-simple-image-detection-android-app-358a2c10bfb7).<br/>
 Щоб встановити додаток, виконайте такі дії:
 
 1. Ініціалізуйте проект:
